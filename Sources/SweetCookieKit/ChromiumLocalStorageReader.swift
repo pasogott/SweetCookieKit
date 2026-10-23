@@ -330,6 +330,14 @@ public enum ChromiumLocalStorageReader {
             return true
         }
 
+        let storageScheme = self.originScheme(from: storageKeyOrigin)
+        let requestedScheme = self.originScheme(from: requestedOrigin)
+        // Unequal schemes never match. Equal schemes, and a missing scheme,
+        // still compare hosts so scheme case does not hide the same origin.
+        if let storageScheme, let requestedScheme, storageScheme != requestedScheme {
+            return false
+        }
+
         let storageHost = self.originHost(from: storageKeyOrigin)
         let requestedHost = self.originHost(from: requestedOrigin)
         if let storageHost, let requestedHost, storageHost == requestedHost {
@@ -353,6 +361,13 @@ public enum ChromiumLocalStorageReader {
         let stripped = self.stripScheme(from: value)
         let host = stripped.split(separator: "/").first
         return host.map(String.init)
+    }
+
+    private static func originScheme(from value: String) -> String? {
+        guard let range = value.range(of: "://") else { return nil }
+        let scheme = String(value[..<range.lowerBound])
+        guard !scheme.isEmpty else { return nil }
+        return scheme.lowercased()
     }
 
     private static func stripScheme(from value: String) -> String {

@@ -92,7 +92,7 @@ let entries = ChromiumLocalStorageReader.readEntries(
     in: levelDBURL)
 ```
 
-This call streams `.log`, `.ldb`, and `.sst` files, filters raw keys before copying or decoding values, and retains only matching records while selecting the current values. Even a write batch spanning many log blocks does not require loading its unrelated values. Origin matching keeps the existing host, scheme, trailing-slash, and partitioned-storage-key behavior. Repeated calls read the files again; origin results are not memoized. Memory depends on matching records, the current table block/index, and manifest metadata rather than unrelated stored values.
+This call streams `.log`, `.ldb`, and `.sst` files, filters raw keys before copying or decoding values, and retains only matching records while selecting the current values. Even a write batch spanning many log blocks does not require loading its unrelated values. Explicit HTTP and HTTPS origins are distinct. Schemes compare case-insensitively, ports remain distinct, and legacy schemeless keys still match their host. Trailing slashes and partitioned storage-key suffixes are normalized. Repeated calls read the files again; origin results are not memoized. Memory depends on matching records, the current table block/index, and manifest metadata rather than unrelated stored values.
 
 For lower-level inspection, `ChromiumLevelDBReader` exposes best-effort text decoding and token candidate scanning:
 
